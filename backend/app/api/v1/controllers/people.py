@@ -1,0 +1,69 @@
+import logging
+import math
+from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Query
+
+from app.services.sorting.factory import SortingFactory
+from app.services.swapi import SwapiService
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+
+
+@router.get("/people")
+async def get_people(
+    page: int = Query(1, ge=1, description="Page number"),
+    search: Optional[str] = Query(
+        None, description="Search term for filtering by name"
+    ),
+    sort_by: Optional[str] = Query(
+        None, enum=["name", "created"], description="Field to sort by"
+    ),
+    order: Optional[str] = Query("asc", enum=["asc", "desc"], description="Sort order"),
+):
+    """
+    Get paginated list of Star Wars characters with search and sort capabilities.
+
+    - **page**: Page number (default: 1)
+    - **search**: Case-insensitive partial match on name
+    - **sort_by**: Sort by 'name' or 'created'
+    - **order**: 'asc' or 'desc'
+    """
+    swapi = SwapiService()
+    PAGE_SIZE = 15
+
+    try:
+        data = await swapi.get_all_people()
+        results = data
+
+        if search:
+            results = [
+                person for person in results if search.lower() in person["name"].lower()
+            ]
+
+        if sort_by:
+            strategy = SortingFactory.get_strategy(sort_by)
+            if strategy:
+                results = strategy.sort(results, ascending=(order == "asc"))
+
+        total_count = len(results)
+        total_pages = math.ceil(total_count / PAGE_SIZE)
+
+        start_idx = (page - 1) * PAGE_SIZE
+        end_idx = start_idx + PAGE_SIZE
+
+        paginated_results = results[start_idx:end_idx]
+
+        return {
+            "count": total_count,
+            "page": page,
+            "total_pages": total_pages,
+            "next": page < total_pages,
+            "previous": page > 1,
+            "results": paginated_results,
+        }
+
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
