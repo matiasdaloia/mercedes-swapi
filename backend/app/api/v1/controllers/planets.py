@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
@@ -17,10 +17,10 @@ async def get_planets(
     search: Optional[str] = Query(
         None, description="Search term for filtering by name"
     ),
-    sort_by: Optional[str] = Query(
-        None, enum=["name", "created"], description="Field to sort by"
+    sort_by: Optional[Literal["name", "created"]] = Query(
+        None, description="Field to sort by"
     ),
-    order: Optional[str] = Query("asc", enum=["asc", "desc"], description="Sort order"),
+    order: Literal["asc", "desc"] = Query("asc", description="Sort order"),
 ):
     """
     Get paginated list of Star Wars planets with search and sort capabilities.

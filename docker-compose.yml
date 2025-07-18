@@ -8,11 +8,24 @@ services:
       - "8000:8000"
     environment:
       - SWAPI_BASE_URL=${SWAPI_BASE_URL:-https://swapi.info/api}
-      - CACHE_TTL=${CACHE_TTL:-3600}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - CORS_ORIGINS=${CORS_ORIGINS:-["http://localhost:6969"]}
     volumes:
       - ./backend:/code
+    networks:
+      - starwars-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: starwars-frontend
+    ports:
+      - "6969:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+    depends_on:
+      - backend
     networks:
       - starwars-network
 
