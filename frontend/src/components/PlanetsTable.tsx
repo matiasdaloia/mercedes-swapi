@@ -1,13 +1,13 @@
 import { useState, useCallback, useMemo } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import SearchInput from "./SearchInput";
-import { DataTable } from "./DataTable";
-import { createColumns } from "./people/columns";
-import { usePeople } from "@/services/people/hooks";
-import type { SortField, SortOrder } from "@/services/people/types";
+import { createColumns } from "./planets/columns";
+import type { SortField, SortOrder } from "@/services/planets/types";
 import Loading from "./Loading";
+import { usePlanets } from "@/services/planets/hooks";
+import { DataTable } from "./DataTable";
 
-export default function PeopleTable() {
+export default function PlanetsTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<SortField | undefined>(undefined);
@@ -15,7 +15,7 @@ export default function PeopleTable() {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  const { data, error, refetch, isLoading } = usePeople({
+  const { data, error, refetch, isLoading } = usePlanets({
     page: currentPage,
     search: debouncedSearchTerm || undefined,
     sort_by: sortBy,
@@ -73,32 +73,32 @@ export default function PeopleTable() {
     );
   }
 
-  const peopleData = data?.results || [];
+  const planetsData = data?.results || [];
   const totalCount = data?.count || 0;
   const totalPages = data?.total_pages || 1;
 
   return (
     <div className="space-y-6">
       <SearchInput
-        placeholder="Search people..."
+        placeholder="Search planets..."
         value={searchTerm}
         onChange={handleSearchChange}
       />
 
       {data && (
         <div className="text-sm text-muted-foreground">
-          Showing {peopleData.length} of {totalCount} result
+          Showing {planetsData.length} of {totalCount} result
           {totalCount !== 1 ? "s" : ""}
           {debouncedSearchTerm && ` matching "${debouncedSearchTerm}"`}
         </div>
       )}
 
-      {peopleData === undefined || isLoading ? (
-        <Loading message="Loading galactic beings..." />
+      {planetsData === undefined || isLoading ? (
+        <Loading message="Loading galactic data..." />
       ) : (
         <DataTable
           columns={columns}
-          data={peopleData}
+          data={planetsData}
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}

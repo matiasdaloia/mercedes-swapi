@@ -125,6 +125,3 @@ export const createColumns = (context: ColumnContext): ColumnDef<Person>[] => [
     },
   },
 ];
-
-// Export a default columns array for backward compatibility
-export const columns: ColumnDef<Person>[] = createColumns({});
