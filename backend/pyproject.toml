@@ -2,7 +2,6 @@
 name = "backend"
 version = "0.1.0"
 description = "Star Wars API"
-readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "dotenv>=0.9.9",
@@ -11,6 +10,4 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = [
-    "ruff>=0.12.3",
-]
+dev = ["ruff>=0.12.3"]
