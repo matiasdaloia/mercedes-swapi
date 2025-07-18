@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -19,10 +19,3 @@ class Planet(BaseModel):
     created: datetime
     edited: datetime
     url: str
-
-
-class PlanetsResponse(BaseModel):
-    count: int
-    next: Optional[str]
-    previous: Optional[str]
-    results: List[Planet]
