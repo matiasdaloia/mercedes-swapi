@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from "react-router";
-import { Rocket, Globe, Users, Home } from "lucide-react";
-import { useCallback } from "react";
+import { Rocket, Globe, Users, Home, Menu, X } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface NavigationLink {
   path: string;
@@ -16,6 +17,7 @@ const navigationLinks: NavigationLink[] = [
 
 export default function Layout() {
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isActive = useCallback(
     (path: string) => {
@@ -43,8 +45,16 @@ export default function Layout() {
     [isActive]
   );
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
       <header className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
@@ -59,7 +69,22 @@ export default function Layout() {
                 </h1>
               </div>
             </Link>
-            <nav>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMobileMenu}
+              className="md:hidden"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </Button>
+
+            <nav className="hidden md:block">
               <div className="flex space-x-2 py-4">
                 {navigationLinks.map((link) => (
                   <Link
@@ -74,10 +99,30 @@ export default function Layout() {
               </div>
             </nav>
           </div>
+
+          <nav
+            className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+              isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="flex flex-col space-y-2 py-4 border-t border-slate-700/50">
+              {navigationLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={getLinkClasses(link.path)}
+                  onClick={closeMobileMenu}
+                >
+                  <link.icon className="h-4 w-4" />
+                  <span>{link.label}</span>
+                </Link>
+              ))}
+            </div>
+          </nav>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
       </main>
 
@@ -92,3 +137,4 @@ export default function Layout() {
     </div>
   );
 }
+
